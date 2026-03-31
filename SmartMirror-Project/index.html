@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Silver Mirror | Smart Mirror Experience</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Admin Panel -->
+        <div id="admin-panel" class="admin-panel" style="display: none;">
+            <div class="admin-panel-content">
+                <h2>Admin Mirror Control</h2>
+                <div class="admin-form">
+                    <div class="form-group">
+                        <label for="feed-url">Mirror Feed URL:</label>
+                        <input type="text" id="feed-url" placeholder="Enter stream URL (e.g., http://ip:port/stream)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="feed-type">Feed Type:</label>
+                        <select id="feed-type">
+                            <option value="camera">Local Camera</option>
+                            <option value="url">Stream URL</option>
+                            <option value="rtsp">RTSP Stream</option>
+                        </select>
+                    </div>
+                    <button id="save-feed" class="admin-btn">Save Configuration</button>
+                    <button id="test-feed" class="admin-btn admin-btn-secondary">Test Feed</button>
+                    <button id="close-admin" class="admin-btn admin-btn-tertiary">Close Admin</button>
+                </div>
+                <div id="admin-status" class="admin-status"></div>
+            </div>
+        </div>
+
+        <!-- Admin Toggle (Hidden Button) -->
+        <button id="admin-toggle" class="admin-toggle">👨‍💼</button>
+
+        <main class="mirror-workspace">
+            <div id="landing-screen" class="landing-overlay">
+                <div class="pill-button" id="start-mirror">
+                    <span class="pill-text">Mirror</span>
+                </div>
+                <p class="tap-hint">tap for a surprise 💕</p>
+            </div>
+
+            <div class="mirror-frame">
+                <button id="close-mirror" class="close-btn-minimal" style="display: none;">
+                    <span class="icon">✖</span>
+                </button>
+                <div class="mirror-glass">
+                    <video id="camera-feed" autoplay playsinline muted></video>
+                    <img id="stream-image" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+                    <div class="mirror-overlay">
+                        <div id="compliment-container" class="compliment-widget">
+                            <p id="compliment-text">Looking good today!</p>
+                        </div>
+                        <div id="feed-status" class="feed-status"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="mirror-controls" class="mirror-controls-overlay" style="display: none;">
+                <div id="manual-ring-light" class="pill-button-small">
+                    <span class="icon">💡</span>
+                    <span class="text">Ring Light</span>
+                </div>
+            </div>
+        </main>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
