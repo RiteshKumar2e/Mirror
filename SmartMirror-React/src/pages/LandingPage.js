@@ -32,15 +32,15 @@ function LandingPage() {
             <span className="icon">👤</span>
             <span>User Portal</span>
           </button>
-
-          <button className="btn btn-admin" onClick={handleAdminClick}>
-            <span className="icon">👨‍💼</span>
-            <span>Admin Dashboard</span>
-          </button>
         </div>
 
         <p className="hint">Tap to start 💕</p>
       </div>
+
+      <button className="btn btn-admin admin-corner" onClick={handleAdminClick}>
+        <span className="icon">👨‍💼</span>
+        <span>by Ritesh</span>
+      </button>
 
       <div className="background-animation"></div>
     </div>

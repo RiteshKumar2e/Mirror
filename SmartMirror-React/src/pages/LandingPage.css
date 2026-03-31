@@ -85,6 +85,32 @@
   box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3);
 }
 
+.admin-corner {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.75rem;
+  z-index: 20;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(255, 0, 127, 0.15));
+  border: 1.5px solid rgba(255, 0, 127, 0.6);
+  color: #ff80bf;
+  gap: 0.3rem;
+}
+
+.admin-corner .icon {
+  font-size: 0.9rem;
+}
+
+.admin-corner:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.5), rgba(255, 0, 127, 0.3));
+  border-color: #ff007f;
+  color: #ff007f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 0, 127, 0.3);
+}
+
 .icon {
   font-size: 1.6rem;
 }
