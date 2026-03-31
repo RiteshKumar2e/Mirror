@@ -156,4 +156,19 @@
     width: 100%;
     justify-content: center;
   }
+
+  .admin-corner {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.8rem;
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .admin-corner .icon {
+    font-size: 0.9rem;
+  }
 }
