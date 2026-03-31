@@ -101,6 +101,14 @@ function AdminPage() {
     }
   };
 
+  const deleteFeed = (userId) => {
+    if (window.confirm(`Delete feed for ${userId}? This will remove the live feed.`)) {
+      localStorage.removeItem(`feed-${userId}`);
+      setSelectedUser(null);
+      alert('✅ Feed deleted successfully!');
+    }
+  };
+
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString();
@@ -178,6 +186,16 @@ function AdminPage() {
                   className="feed-card"
                   onClick={() => handleUserClick(feed)}
                 >
+                  <button
+                    className="feed-delete-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteFeed(feed.userId);
+                    }}
+                    title="Delete feed"
+                  >
+                    🗑️
+                  </button>
                   <div className="feed-display">
                     {feed.imageData ? (
                       <img src={feed.imageData} alt={feed.userId} className="feed-image" />
