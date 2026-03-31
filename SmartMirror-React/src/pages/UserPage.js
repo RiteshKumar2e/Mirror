@@ -282,11 +282,12 @@ function UserPage() {
         const ctx = canvas.getContext('2d');
         const video = videoRef.current;
 
-        canvas.width = video.videoWidth || 400;
-        canvas.height = video.videoHeight || 500;
+        // Use lower resolution for broadcasting (360p) to reduce lag
+        canvas.width = 480;
+        canvas.height = 640;
 
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageData = canvas.toDataURL('image/jpeg', 0.7);
+        const imageData = canvas.toDataURL('image/jpeg', 0.5); // Lower quality for faster streaming
 
         // Store user's feed in localStorage (will be picked up by admin)
         const userFeed = {
@@ -298,7 +299,7 @@ function UserPage() {
 
         localStorage.setItem(`feed-${userId}`, JSON.stringify(userFeed));
       }
-    }, 300); // Update feed every 300ms
+    }, 500); // Update feed every 500ms for smooth performance
 
     return () => clearInterval(broadcastInterval);
   }, [isActive, userId]);

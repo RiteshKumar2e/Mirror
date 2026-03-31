@@ -28,8 +28,19 @@ function AdminPage() {
           .filter(feed => feed && feed.isActive);
 
         setUserFeeds(feeds);
+        setStatsUpdateTime(new Date());
+      } catch (e) {
+        console.error('Polling error:', e);
+      }
+    }, refreshRate * 500); // Poll for feeds every 500ms (faster updates)
 
-        // Fetch photos for all users
+    return () => clearInterval(pollInterval);
+  }, [refreshRate]);
+
+  // Poll for photos at slower rate (every 3 seconds)
+  useEffect(() => {
+    const photoInterval = setInterval(() => {
+      try {
         const photos = {};
         Object.keys(localStorage)
           .filter(key => key.startsWith('gallery-'))
@@ -49,14 +60,13 @@ function AdminPage() {
           });
         
         setUserPhotos(photos);
-        setStatsUpdateTime(new Date());
       } catch (e) {
-        console.error('Polling error:', e);
+        console.error('Photo polling error:', e);
       }
-    }, refreshRate * 1000);
+    }, 3000); // Poll photos every 3 seconds to reduce lag
 
-    return () => clearInterval(pollInterval);
-  }, [refreshRate]);
+    return () => clearInterval(photoInterval);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('isAdmin');

@@ -13,7 +13,8 @@ function LandingPage() {
 
   const handleAdminClick = () => {
     const password = prompt('Enter Admin Password:');
-    if (password === '1234') {
+    const adminPassword = process.env.REACT_APP_ADMIN_PASSWORD || 'admin123';
+    if (password === adminPassword) {
       localStorage.setItem('isAdmin', 'true');
       navigate('/admin');
     } else {

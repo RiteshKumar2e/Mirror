@@ -183,6 +183,7 @@
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
+  will-change: transform, border-color, background;
 }
 
 .feed-delete-btn {
@@ -203,6 +204,7 @@
   z-index: 10;
   backdrop-filter: blur(5px);
   opacity: 0;
+  will-change: opacity, transform, background;
 }
 
 .feed-card:hover .feed-delete-btn {
@@ -227,12 +229,15 @@
   aspect-ratio: 4/5;
   background: #000;
   overflow: hidden;
+  contain: strict;
 }
 
 .feed-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  will-change: contents;
+  display: block;
 }
 
 .feed-placeholder {
