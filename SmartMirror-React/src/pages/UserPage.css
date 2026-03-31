@@ -253,13 +253,29 @@
 }
 
 @media (max-width: 768px) {
+  .mirror-container {
+    padding: 1rem;
+  }
+
   .mirror-frame {
-    max-width: 100%;
-    aspect-ratio: unset;
-    height: 100%;
+    max-width: 90%;
+    aspect-ratio: 4/5;
+    height: auto;
+    margin: 0 auto;
   }
 
   .compliment-widget p {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .control-btn {
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+  }
+
+  .brightness-indicator {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.8rem;
   }
 }
