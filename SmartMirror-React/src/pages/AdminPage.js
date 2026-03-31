@@ -289,6 +289,21 @@ function AdminPage() {
               <p>
                 <strong>Captured:</strong> {formatTime(selectedPhoto.timestamp)}
               </p>
+              {selectedPhoto.photoTime && (
+                <p>
+                  <strong>🕐 Time:</strong> {selectedPhoto.photoTime}
+                </p>
+              )}
+              {selectedPhoto.location && (
+                <p>
+                  <strong>📍 Location:</strong> {selectedPhoto.location.lat.toFixed(4)}, {selectedPhoto.location.lng.toFixed(4)}
+                </p>
+              )}
+              {selectedPhoto.filter && (
+                <p>
+                  <strong>✨ Filter:</strong> {selectedPhoto.filter}
+                </p>
+              )}
               <div className="photo-actions">
                 <button 
                   className="download-btn"
