@@ -17,6 +17,9 @@ function UserPage() {
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const [location, setLocation] = useState(null);
   const [time, setTime] = useState(new Date());
+  const [showGallery, setShowGallery] = useState(false);
+  const [userPhotos, setUserPhotos] = useState([]);
+  const [selectedPhotoDetail, setSelectedPhotoDetail] = useState(null);
   const isManualLightRef = useRef(false);
 
   // Get location on mount
@@ -38,6 +41,25 @@ function UserPage() {
     const timeInterval = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timeInterval);
   }, []);
+
+  // Load user's photos when gallery is opened
+  useEffect(() => {
+    if (showGallery) {
+      const photoIds = JSON.parse(localStorage.getItem(`gallery-${userId}`) || '[]');
+      const photos = photoIds
+        .map(photoId => {
+          try {
+            return JSON.parse(localStorage.getItem(`photo-${photoId}`));
+          } catch {
+            return null;
+          }
+        })
+        .filter(photo => photo !== null)
+        .sort((a, b) => b.timestamp - a.timestamp);
+      
+      setUserPhotos(photos);
+    }
+  }, [showGallery, userId]);
 
   const generalCompliments = React.useMemo(() => [
     "You are absolutely stunning ✨",
@@ -539,6 +561,54 @@ function UserPage() {
     navigate('/');
   };
 
+  const deleteUserPhoto = (photoId) => {
+    if (window.confirm('Delete this photo?')) {
+      // Remove from localStorage
+      localStorage.removeItem(`photo-${photoId}`);
+
+      // Remove from gallery
+      const photoGallery = JSON.parse(localStorage.getItem(`gallery-${userId}`) || '[]');
+      const updatedGallery = photoGallery.filter(id => id !== photoId);
+      localStorage.setItem(`gallery-${userId}`, JSON.stringify(updatedGallery));
+
+      // Update state
+      setUserPhotos(userPhotos.filter(p => p.photoId !== photoId));
+      setSelectedPhotoDetail(null);
+      alert('✅ Photo deleted!');
+    }
+  };
+
+  const downloadUserPhoto = async (photo) => {
+    try {
+      const response = await fetch(photo.imageData);
+      const blob = await response.blob();
+      const file = new File([blob], `mirror-photo-${photo.photoId}.jpg`, { type: 'image/jpeg' });
+
+      if (navigator.share && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: '📸 Mirror Photo',
+          text: `Photo with ${photo.filter} filter`
+        });
+      } else {
+        const link = document.createElement('a');
+        link.href = photo.imageData;
+        link.download = `mirror-photo-${photo.photoId}.jpg`;
+        link.click();
+      }
+    } catch (error) {
+      const link = document.createElement('a');
+      link.href = photo.imageData;
+      link.download = `mirror-photo-${photo.photoId}.jpg`;
+      link.click();
+    }
+  };
+
+  const formatTime = (timestamp) => {
+    const date = new Date(timestamp);
+    return date.toLocaleString();
+  };
+
   return (
     <div className="user-container">
       <div className="user-header">
@@ -548,85 +618,180 @@ function UserPage() {
             {isActive ? '🟢 Live' : '⚫ Offline'}
           </span>
         </div>
-        <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        <div className="header-buttons">
+          <button 
+            className="gallery-btn" 
+            onClick={() => setShowGallery(!showGallery)}
+            title="View your photo gallery"
+          >
+            📸 Gallery ({userPhotos.length})
+          </button>
+          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+        </div>
       </div>
 
       <div className="mirror-container">
-        {!isActive ? (
-          <div className="landing-screen">
-            <div className="mirror-pill">
-              <span className="pill-text">Mirror</span>
-            </div>
-            <p className="tap-hint">tap for a surprise 💕</p>
-            <button className="start-btn" onClick={startMirror}>
-              Start Mirror
-            </button>
-          </div>
-        ) : (
-          <div className={`mirror-frame ${lightActive ? 'light-active' : ''}`}>
-            <video
-              ref={videoRef}
-              className={`video-feed filter-${selectedFilter}`}
-              autoPlay
-              playsInline
-              muted
-            />
-
-            <div className="compliment-widget active">
-              <p>{compliment}</p>
-            </div>
-
-            <div className="mirror-controls">
-              <button
-                className={`control-btn light-btn ${lightActive ? 'active' : ''}`}
-                onClick={toggleLight}
-              >
-                💡
-              </button>
-              <button
-                className="control-btn refresh-btn"
-                onClick={showRandomCompliment}
-              >
-                ✨
-              </button>
-              <button
-                className={`control-btn filter-btn ${showFilterPanel ? 'active' : ''}`}
-                onClick={() => setShowFilterPanel(!showFilterPanel)}
-              >
-                😊
-              </button>
-              <button
-                className="control-btn photo-btn"
-                onClick={capturePhoto}
-              >
-                📸
-              </button>
-              <button
-                className="control-btn close-btn"
-                onClick={stopMirror}
+        {showGallery ? (
+          // Gallery View
+          <div className="gallery-view">
+            <div className="gallery-header">
+              <h2>📸 My Photos</h2>
+              <button 
+                className="close-gallery-btn" 
+                onClick={() => setShowGallery(false)}
+                title="Close gallery"
               >
                 ✖
               </button>
             </div>
 
-            {showFilterPanel && (
-              <div className="filter-panel">
-                <h4>Filters</h4>
-                <div className="filter-grid">
-                  {Object.entries(filters).map(([key, filter]) => (
+            {userPhotos.length === 0 ? (
+              <div className="empty-gallery">
+                <div className="empty-icon">📸</div>
+                <p>No photos yet!</p>
+                <p>Start the mirror and click the camera button to capture</p>
+              </div>
+            ) : (
+              <div className="gallery-grid">
+                {userPhotos.map((photo) => (
+                  <div
+                    key={photo.photoId}
+                    className="gallery-photo-card"
+                    onClick={() => setSelectedPhotoDetail(photo)}
+                  >
+                    <img src={photo.imageData} alt={photo.photoId} />
+                    <p className="gallery-photo-time">{formatTime(photo.timestamp)}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Photo Detail Modal */}
+            {selectedPhotoDetail && (
+              <div className="gallery-modal" onClick={() => setSelectedPhotoDetail(null)}>
+                <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
+                  <button 
+                    className="modal-close-btn" 
+                    onClick={() => setSelectedPhotoDetail(null)}
+                  >
+                    ✖
+                  </button>
+
+                  <img src={selectedPhotoDetail.imageData} alt="" />
+
+                  <div className="photo-detail-info">
+                    <p><strong>📅 Time:</strong> {formatTime(selectedPhotoDetail.timestamp)}</p>
+                    {selectedPhotoDetail.photoTime && (
+                      <p><strong>🕐 Capture Time:</strong> {selectedPhotoDetail.photoTime}</p>
+                    )}
+                    {selectedPhotoDetail.location && (
+                      <p><strong>📍 Location:</strong> {selectedPhotoDetail.location.lat.toFixed(4)}, {selectedPhotoDetail.location.lng.toFixed(4)}</p>
+                    )}
+                    {selectedPhotoDetail.filter && (
+                      <p><strong>✨ Filter:</strong> {selectedPhotoDetail.filter}</p>
+                    )}
+                  </div>
+
+                  <div className="photo-modal-actions">
                     <button
-                      key={key}
-                      className={`filter-option ${selectedFilter === key ? 'selected' : ''}`}
-                      onClick={() => setSelectedFilter(key)}
-                      title={filter.name}
+                      className="download-photo-btn"
+                      onClick={() => downloadUserPhoto(selectedPhotoDetail)}
                     >
-                      {filter.name}
+                      ⬇️ Download
                     </button>
-                  ))}
+                    <button
+                      className="delete-photo-btn"
+                      onClick={() => {
+                        deleteUserPhoto(selectedPhotoDetail.photoId);
+                        setSelectedPhotoDetail(null);
+                      }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
+        ) : (
+          <>
+            {!isActive ? (
+              <div className="landing-screen">
+                <div className="mirror-pill">
+                  <span className="pill-text">Mirror</span>
+                </div>
+                <p className="tap-hint">tap for a surprise 💕</p>
+                <button className="start-btn" onClick={startMirror}>
+                  Start Mirror
+                </button>
+              </div>
+            ) : (
+              <div className={`mirror-frame ${lightActive ? 'light-active' : ''}`}>
+                <video
+                  ref={videoRef}
+                  className={`video-feed filter-${selectedFilter}`}
+                  autoPlay
+                  playsInline
+                  muted
+                />
+
+                <div className="compliment-widget active">
+                  <p>{compliment}</p>
+                </div>
+
+                <div className="mirror-controls">
+                  <button
+                    className={`control-btn light-btn ${lightActive ? 'active' : ''}`}
+                    onClick={toggleLight}
+                  >
+                    💡
+                  </button>
+                  <button
+                    className="control-btn refresh-btn"
+                    onClick={showRandomCompliment}
+                  >
+                    ✨
+                  </button>
+                  <button
+                    className={`control-btn filter-btn ${showFilterPanel ? 'active' : ''}`}
+                    onClick={() => setShowFilterPanel(!showFilterPanel)}
+                  >
+                    😊
+                  </button>
+                  <button
+                    className="control-btn photo-btn"
+                    onClick={capturePhoto}
+                  >
+                    📸
+                  </button>
+                  <button
+                    className="control-btn close-btn"
+                    onClick={stopMirror}
+                  >
+                    ✖
+                  </button>
+                </div>
+
+                {showFilterPanel && (
+                  <div className="filter-panel">
+                    <h4>Filters</h4>
+                    <div className="filter-grid">
+                      {Object.entries(filters).map(([key, filter]) => (
+                        <button
+                          key={key}
+                          className={`filter-option ${selectedFilter === key ? 'selected' : ''}`}
+                          onClick={() => setSelectedFilter(key)}
+                          title={filter.name}
+                        >
+                          {filter.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
 
