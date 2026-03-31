@@ -346,6 +346,118 @@
   margin-left: 0.5rem;
 }
 
+/* Tab Buttons */
+.control-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.tab-btn {
+  padding: 0.7rem 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.tab-btn:hover {
+  border-color: rgba(255, 0, 127, 0.5);
+  color: rgba(255, 0, 127, 0.8);
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(255, 0, 127, 0.1));
+  border-color: #ff007f;
+  color: #ff80bf;
+  box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
+}
+
+/* Photo Gallery */
+.photos-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.user-photos-section {
+  margin-bottom: 2.5rem;
+}
+
+.user-photos-title {
+  font-size: 1.3rem;
+  color: #ff80bf;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255, 0, 127, 0.3);
+}
+
+.photos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.photo-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid rgba(255, 0, 127, 0.3);
+  transition: all 0.3s;
+  aspect-ratio: 4/5;
+}
+
+.photo-card:hover {
+  transform: scale(1.05);
+  border-color: #ff007f;
+  box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3);
+}
+
+.photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-time {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  padding: 0.6rem;
+  margin: 0;
+  text-align: center;
+}
+
+/* Download Button */
+.download-btn {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.3), rgba(79, 172, 254, 0.2));
+  border: 1.5px solid rgba(255, 0, 127, 0.5);
+  color: #ff80bf;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.download-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 0, 127, 0.5), rgba(79, 172, 254, 0.3));
+  border-color: #ff007f;
+  color: #ff007f;
+  box-shadow: 0 6px 20px rgba(255, 0, 127, 0.3);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

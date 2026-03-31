@@ -8,6 +8,9 @@ function AdminPage() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [refreshRate, setRefreshRate] = useState(1);
   const [statsUpdateTime, setStatsUpdateTime] = useState(new Date());
+  const [userPhotos, setUserPhotos] = useState({});
+  const [showPhotos, setShowPhotos] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   // Poll for user feeds from localStorage
   useEffect(() => {
@@ -25,6 +28,27 @@ function AdminPage() {
           .filter(feed => feed && feed.isActive);
 
         setUserFeeds(feeds);
+
+        // Fetch photos for all users
+        const photos = {};
+        Object.keys(localStorage)
+          .filter(key => key.startsWith('gallery-'))
+          .forEach(key => {
+            const userId = key.replace('gallery-', '');
+            const photoIds = JSON.parse(localStorage.getItem(key) || '[]');
+            photos[userId] = photoIds
+              .map(photoId => {
+                try {
+                  return JSON.parse(localStorage.getItem(`photo-${photoId}`));
+                } catch {
+                  return null;
+                }
+              })
+              .filter(photo => photo !== null)
+              .sort((a, b) => b.timestamp - a.timestamp);
+          });
+        
+        setUserPhotos(photos);
         setStatsUpdateTime(new Date());
       } catch (e) {
         console.error('Polling error:', e);
@@ -55,6 +79,10 @@ function AdminPage() {
     return userFeeds.filter(f => f.isActive).length;
   };
 
+  const getTotalPhotos = () => {
+    return Object.values(userPhotos).reduce((sum, photos) => sum + photos.length, 0);
+  };
+
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString();
@@ -70,6 +98,20 @@ function AdminPage() {
         </div>
 
         <div className="admin-controls">
+          <div className="control-buttons">
+            <button 
+              className={`tab-btn ${!showPhotos ? 'active' : ''}`}
+              onClick={() => setShowPhotos(false)}
+            >
+              📹 Live Feeds ({userFeeds.length})
+            </button>
+            <button 
+              className={`tab-btn ${showPhotos ? 'active' : ''}`}
+              onClick={() => setShowPhotos(true)}
+            >
+              📸 Photos ({getTotalPhotos()})
+            </button>
+          </div>
           <div className="refresh-control">
             <label>Refresh Rate:</label>
             <select value={refreshRate} onChange={(e) => setRefreshRate(Number(e.target.value))}>
@@ -101,39 +143,71 @@ function AdminPage() {
 
       {/* Main Content */}
       <div className="admin-main">
-        {userFeeds.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🪞</div>
-            <h2>No Active Feeds</h2>
-            <p>Waiting for users to connect their mirrors...</p>
-            <p className="hint">Tell users to open the User Portal and start their mirrors</p>
-          </div>
-        ) : (
-          <div className="feeds-grid">
-            {userFeeds.map((feed, index) => (
-              <div
-                key={index}
-                className="feed-card"
-                onClick={() => handleUserClick(feed)}
-              >
-                <div className="feed-display">
-                  {feed.imageData ? (
-                    <img src={feed.imageData} alt={feed.userId} className="feed-image" />
-                  ) : (
-                    <div className="feed-placeholder">
-                      <span>📹</span>
-                    </div>
-                  )}
-                </div>
+        {!showPhotos ? (
+          // Live Feeds View
+          userFeeds.length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">🪞</div>
+              <h2>No Active Feeds</h2>
+              <p>Waiting for users to connect their mirrors...</p>
+              <p className="hint">Tell users to open the User Portal and start their mirrors</p>
+            </div>
+          ) : (
+            <div className="feeds-grid">
+              {userFeeds.map((feed, index) => (
+                <div
+                  key={index}
+                  className="feed-card"
+                  onClick={() => handleUserClick(feed)}
+                >
+                  <div className="feed-display">
+                    {feed.imageData ? (
+                      <img src={feed.imageData} alt={feed.userId} className="feed-image" />
+                    ) : (
+                      <div className="feed-placeholder">
+                        <span>📹</span>
+                      </div>
+                    )}
+                  </div>
 
-                <div className="feed-info">
-                  <h3>{feed.userId}</h3>
-                  <p className="feed-time">Updated: {formatTime(feed.timestamp)}</p>
-                  <span className="status-badge">🟢 Live</span>
+                  <div className="feed-info">
+                    <h3>{feed.userId}</h3>
+                    <p className="feed-time">Updated: {formatTime(feed.timestamp)}</p>
+                    <span className="status-badge">🟢 Live</span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )
+        ) : (
+          // Photos Gallery View
+          Object.keys(userPhotos).length === 0 ? (
+            <div className="empty-state">
+              <div className="empty-icon">📸</div>
+              <h2>No Photos Yet</h2>
+              <p>Users can capture photos by clicking the 📸 button on their mirrors</p>
+            </div>
+          ) : (
+            <div className="photos-container">
+              {Object.entries(userPhotos).map(([userId, photos]) => (
+                <div key={userId} className="user-photos-section">
+                  <h3 className="user-photos-title">📸 {userId}</h3>
+                  <div className="photos-grid">
+                    {photos.map((photo) => (
+                      <div
+                        key={photo.photoId}
+                        className="photo-card"
+                        onClick={() => setSelectedPhoto(photo)}
+                      >
+                        <img src={photo.imageData} alt={photo.photoId} />
+                        <p className="photo-time">{formatTime(photo.timestamp)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </div>
 
@@ -143,7 +217,7 @@ function AdminPage() {
           <div className="detail-content" onClick={(e) => e.stopPropagation()}>
             <button className="close-detail" onClick={handleCloseDetail}>✖</button>
 
-            <h2>{selectedUser.userId}</h2>
+            <h2>📹 {selectedUser.userId}</h2>
 
             <div className="detail-image-container">
               {selectedUser.imageData ? (
@@ -163,6 +237,41 @@ function AdminPage() {
               <p>
                 <strong>Status:</strong> <span className="live-badge">🟢 Live</span>
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Photo Detail Modal */}
+      {selectedPhoto && (
+        <div className="detail-modal" onClick={() => setSelectedPhoto(null)}>
+          <div className="detail-content" onClick={(e) => e.stopPropagation()}>
+            <button className="close-detail" onClick={() => setSelectedPhoto(null)}>✖</button>
+
+            <h2>📸 {selectedPhoto.userId}</h2>
+
+            <div className="detail-image-container">
+              <img src={selectedPhoto.imageData} alt={selectedPhoto.photoId} />
+            </div>
+
+            <div className="detail-info">
+              <p>
+                <strong>User:</strong> {selectedPhoto.userId}
+              </p>
+              <p>
+                <strong>Captured:</strong> {formatTime(selectedPhoto.timestamp)}
+              </p>
+              <button 
+                className="download-btn"
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = selectedPhoto.imageData;
+                  link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
+                  link.click();
+                }}
+              >
+                ⬇️ Download Photo
+              </button>
             </div>
           </div>
         </div>

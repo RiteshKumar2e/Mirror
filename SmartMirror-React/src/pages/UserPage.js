@@ -205,6 +205,43 @@ function UserPage() {
     isManualLightRef.current = true;
   }, []);
 
+  const capturePhoto = useCallback(() => {
+    if (!videoRef.current) return;
+
+    const canvas = document.createElement('canvas');
+    const video = videoRef.current;
+    canvas.width = video.videoWidth || 400;
+    canvas.height = video.videoHeight || 500;
+
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const photoData = canvas.toDataURL('image/jpeg', 0.9);
+
+    // Save photo with timestamp
+    const photo = {
+      photoId: `${userId}-${Date.now()}`,
+      userId,
+      timestamp: Date.now(),
+      imageData: photoData
+    };
+
+    // Store in localStorage with photos prefix
+    localStorage.setItem(`photo-${photo.photoId}`, JSON.stringify(photo));
+
+    // Add to user's photo gallery
+    const photoGallery = JSON.parse(localStorage.getItem(`gallery-${userId}`) || '[]');
+    photoGallery.push(photo.photoId);
+    localStorage.setItem(`gallery-${userId}`, JSON.stringify(photoGallery));
+
+    // Download to user's device
+    const link = document.createElement('a');
+    link.href = photoData;
+    link.download = `mirror-photo-${Date.now()}.jpg`;
+    link.click();
+
+    alert('✨ Photo saved and downloaded!');
+  }, [userId]);
+
   const showRandomCompliment = () => {
     if (isComplimentActive) return;
 
@@ -283,6 +320,12 @@ function UserPage() {
                 onClick={showRandomCompliment}
               >
                 ✨
+              </button>
+              <button
+                className="control-btn photo-btn"
+                onClick={capturePhoto}
+              >
+                📸
               </button>
               <button
                 className="control-btn close-btn"
