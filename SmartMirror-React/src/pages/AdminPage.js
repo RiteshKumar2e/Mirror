@@ -83,6 +83,24 @@ function AdminPage() {
     return Object.values(userPhotos).reduce((sum, photos) => sum + photos.length, 0);
   };
 
+  const deletePhoto = (photoId, userId) => {
+    if (window.confirm('Are you sure you want to delete this photo? This cannot be undone.')) {
+      // Remove from localStorage
+      localStorage.removeItem(`photo-${photoId}`);
+
+      // Remove from gallery
+      const photoGallery = JSON.parse(localStorage.getItem(`gallery-${userId}`) || '[]');
+      const updatedGallery = photoGallery.filter(id => id !== photoId);
+      localStorage.setItem(`gallery-${userId}`, JSON.stringify(updatedGallery));
+
+      // Close detail modal
+      setSelectedPhoto(null);
+
+      // Refresh will happen automatically on next poll
+      alert('✅ Photo deleted successfully!');
+    }
+  };
+
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString();
@@ -201,6 +219,16 @@ function AdminPage() {
                       >
                         <img src={photo.imageData} alt={photo.photoId} />
                         <p className="photo-time">{formatTime(photo.timestamp)}</p>
+                        <button
+                          className="photo-delete-quick"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deletePhoto(photo.photoId, photo.userId);
+                          }}
+                          title="Delete photo"
+                        >
+                          🗑️
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -261,17 +289,25 @@ function AdminPage() {
               <p>
                 <strong>Captured:</strong> {formatTime(selectedPhoto.timestamp)}
               </p>
-              <button 
-                className="download-btn"
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = selectedPhoto.imageData;
-                  link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
-                  link.click();
-                }}
-              >
-                ⬇️ Download Photo
-              </button>
+              <div className="photo-actions">
+                <button 
+                  className="download-btn"
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = selectedPhoto.imageData;
+                    link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
+                    link.click();
+                  }}
+                >
+                  ⬇️ Download Photo
+                </button>
+                <button 
+                  className="delete-btn"
+                  onClick={() => deletePhoto(selectedPhoto.photoId, selectedPhoto.userId)}
+                >
+                  🗑️ Delete Photo
+                </button>
+              </div>
             </div>
           </div>
         </div>

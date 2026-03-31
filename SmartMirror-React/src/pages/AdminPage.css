@@ -437,6 +437,36 @@
   text-align: center;
 }
 
+.photo-delete-quick {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 107, 107, 0.8);
+  border: 1px solid rgba(255, 107, 107, 0.9);
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  opacity: 0;
+}
+
+.photo-card:hover .photo-delete-quick {
+  opacity: 1;
+}
+
+.photo-delete-quick:hover {
+  background: rgba(255, 53, 53, 0.95);
+  border-color: #ff3333;
+  box-shadow: 0 4px 12px rgba(255, 53, 53, 0.4);
+  transform: scale(1.1);
+}
+
 /* Download Button */
 .download-btn {
   padding: 0.8rem 1.5rem;
@@ -456,6 +486,39 @@
   border-color: #ff007f;
   color: #ff007f;
   box-shadow: 0 6px 20px rgba(255, 0, 127, 0.3);
+}
+
+/* Photo Actions Container */
+.photo-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Delete Button */
+.delete-btn {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.3), rgba(220, 53, 69, 0.2));
+  border: 1.5px solid rgba(255, 107, 107, 0.5);
+  color: #ff6b6b;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s;
+  width: 100%;
+}
+
+.delete-btn:hover {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.5), rgba(220, 53, 69, 0.3));
+  border-color: #ff4444;
+  color: #ff4444;
+  box-shadow: 0 6px 20px rgba(255, 107, 107, 0.3);
+}
+
+.delete-btn:active {
+  transform: scale(0.98);
 }
 
 @keyframes fadeIn {
