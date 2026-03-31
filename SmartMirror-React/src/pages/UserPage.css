@@ -151,28 +151,23 @@
   background: #000;
 }
 
-.video-feed.light-active::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 32px;
-  border: 3px solid rgba(255, 0, 127, 0.5);
-  box-shadow: inset 0 0 30px rgba(255, 0, 127, 0.5);
-  pointer-events: none;
+.mirror-frame.light-active {
+  box-shadow: 0 0 60px 15px rgba(255, 20, 147, 0.8), inset 0 0 40px rgba(255, 20, 147, 0.5), 0 8px 32px 0 rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 20, 147, 1);
+  border-width: 3px;
+  filter: drop-shadow(0 0 20px rgba(255, 20, 147, 0.8));
 }
 
 .compliment-widget {
   position: absolute;
-  top: -60px;
+  top: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  width: 80%;
+  width: 90%;
   text-align: center;
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.8s ease, transform 0.8s ease;
+  z-index: 15;
 }
 
 .compliment-widget.active {
@@ -181,10 +176,30 @@
 
 .compliment-widget p {
   font-family: 'Dancing Script', cursive;
-  font-size: 2rem;
-  font-weight: 600;
-  color: #ff80bf;
-  text-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+  font-size: 1.8rem;
+  font-weight: 700;
+  font-style: italic;
+  color: #ff1493;
+  text-shadow: 0 0 20px rgba(255, 20, 147, 0.8), 0 0 40px rgba(255, 0, 127, 0.6);
+  margin: 0;
+  animation: fadeScaleRotate 2s ease-in-out forwards;
+  letter-spacing: 0.5px;
+  filter: drop-shadow(0 0 8px rgba(255, 20, 147, 0.9));
+}
+
+@keyframes fadeScaleRotate {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .mirror-controls {

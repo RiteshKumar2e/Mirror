@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UserPage.css';
 
@@ -14,6 +14,7 @@ function UserPage() {
   const [brightness, setBrightness] = useState(0);
   const [lightActive, setLightActive] = useState(false);
   const [lastComplimentType, setLastComplimentType] = useState('general');
+  const isManualLightRef = useRef(false);
 
   const generalCompliments = React.useMemo(() => [
     "look who's beautiful today ❤️",
@@ -117,15 +118,31 @@ function UserPage() {
       const avg = Math.round(total / (canvas.width * canvas.height));
       setBrightness(avg);
 
-      if (avg < 50) {
-        setLightActive(true);
-      } else {
-        setLightActive(false);
+      // Only auto-control light if user hasn't manually toggled it
+      if (!isManualLightRef.current) {
+        if (avg < 50) {
+          setLightActive(true);
+        } else {
+          setLightActive(false);
+        }
       }
     }, 1000);
 
     return () => clearInterval(brightnessInterval);
   }, [isActive]);
+
+  // Auto-rotate compliments every 2 seconds
+  useEffect(() => {
+    if (!isActive) return;
+
+    let rotateIndex = 0;
+    const rotateInterval = setInterval(() => {
+      rotateIndex = (rotateIndex + 1) % generalCompliments.length;
+      setCompliment(generalCompliments[rotateIndex]);
+    }, 2000);
+
+    return () => clearInterval(rotateInterval);
+  }, [isActive, generalCompliments]);
 
   const startMirror = async () => {
     try {
@@ -183,9 +200,10 @@ function UserPage() {
     localStorage.setItem(`feed-${userId}`, JSON.stringify(userFeed));
   };
 
-  const toggleLight = () => {
-    setLightActive(!lightActive);
-  };
+  const toggleLight = useCallback(() => {
+    setLightActive(prev => !prev);
+    isManualLightRef.current = true;
+  }, []);
 
   const showRandomCompliment = () => {
     if (isComplimentActive) return;
@@ -240,16 +258,16 @@ function UserPage() {
             </button>
           </div>
         ) : (
-          <div className="mirror-frame">
+          <div className={`mirror-frame ${lightActive ? 'light-active' : ''}`}>
             <video
               ref={videoRef}
-              className={`video-feed ${lightActive ? 'light-active' : ''}`}
+              className="video-feed"
               autoPlay
               playsInline
               muted
             />
 
-            <div className={`compliment-widget ${isComplimentActive ? 'active' : ''}`}>
+            <div className="compliment-widget active">
               <p>{compliment}</p>
             </div>
 

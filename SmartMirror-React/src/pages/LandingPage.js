@@ -24,8 +24,8 @@ function LandingPage() {
   return (
     <div className="landing-container">
       <div className="landing-content">
-        <div className="logo">✨ Silver Mirror</div>
-        <p className="subtitle">Smart Mirror Platform</p>
+        <div className="logo">✨ Smart Mirror</div>
+
 
         <div className="buttons-container">
           <button className="btn btn-user" onClick={handleUserClick}>
