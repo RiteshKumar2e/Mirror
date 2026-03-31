@@ -206,43 +206,6 @@ function UserPage() {
     eclipse: { name: '🌑 Eclipse', css: 'brightness(0.6) contrast(1.4) saturate(1.3)' },
   }), []);
 
-  const applyFilterToCanvas = (canvas, ctx, filterKey) => {
-    if (filterKey === 'none' || !filterKey) return;
-
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-
-    switch (filterKey) {
-      case 'sepia':
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i], g = data[i + 1], b = data[i + 2];
-          data[i] = Math.min(255, r * 0.393 + g * 0.769 + b * 0.189);
-          data[i + 1] = Math.min(255, r * 0.349 + g * 0.686 + b * 0.168);
-          data[i + 2] = Math.min(255, r * 0.272 + g * 0.534 + b * 0.131);
-        }
-        break;
-      case 'grayscale':
-        for (let i = 0; i < data.length; i += 4) {
-          const gray = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          data[i] = gray;
-          data[i + 1] = gray;
-          data[i + 2] = gray;
-        }
-        break;
-      case 'brightness':
-        for (let i = 0; i < data.length; i += 4) {
-          data[i] = Math.min(255, data[i] * 1.3);
-          data[i + 1] = Math.min(255, data[i + 1] * 1.3);
-          data[i + 2] = Math.min(255, data[i + 2] * 1.3);
-        }
-        break;
-      default:
-        break;
-    }
-
-    ctx.putImageData(imageData, 0, 0);
-  };
-
   useEffect(() => {
     return () => {
       if (stream) {
@@ -405,10 +368,30 @@ function UserPage() {
     canvas.height = video.videoHeight || 500;
 
     const ctx = canvas.getContext('2d');
+    
+    // Draw the video frame to canvas
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Apply selected filter
-    applyFilterToCanvas(canvas, ctx, selectedFilter);
+    // Apply the selected filter using canvas filter property
+    if (selectedFilter && selectedFilter !== 'none') {
+      const filterObj = filters[selectedFilter];
+      if (filterObj && filterObj.css !== 'none') {
+        // Create a temporary canvas to hold the original image
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = canvas.height;
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        // Draw original image to temp canvas
+        tempCtx.drawImage(canvas, 0, 0);
+        
+        // Clear the main canvas and redraw with filter
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.filter = filterObj.css;
+        ctx.drawImage(tempCanvas, 0, 0);
+        ctx.filter = 'none';
+      }
+    }
     
     const photoData = canvas.toDataURL('image/jpeg', 0.9);
 
@@ -438,7 +421,7 @@ function UserPage() {
     link.click();
 
     alert('✨ Photo saved and downloaded!');
-  }, [userId, selectedFilter, location, time]);
+  }, [userId, selectedFilter, location, time, filters]);
 
   const showRandomCompliment = () => {
     if (isComplimentActive) return;
