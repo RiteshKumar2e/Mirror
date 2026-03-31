@@ -418,3 +418,31 @@ footer {
     color: var(--accent-blue);
     animation: pulse 2s infinite;
 }
+
+/* Feed Status */
+.feed-status {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    color: #4cb050;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 30;
+}
+
+.feed-status-success {
+    background: rgba(76, 175, 80, 0.1);
+    border: 1px solid rgba(76, 175, 80, 0.5);
+    color: #4cb050;
+}
+
+.feed-status-error {
+    background: rgba(244, 67, 54, 0.1);
+    border: 1px solid rgba(244, 67, 54, 0.5);
+    color: #f44336;
+}

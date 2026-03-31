@@ -11,34 +11,6 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Admin Panel -->
-        <div id="admin-panel" class="admin-panel" style="display: none;">
-            <div class="admin-panel-content">
-                <h2>Admin Mirror Control</h2>
-                <div class="admin-form">
-                    <div class="form-group">
-                        <label for="feed-url">Mirror Feed URL:</label>
-                        <input type="text" id="feed-url" placeholder="Enter stream URL (e.g., http://ip:port/stream)" />
-                    </div>
-                    <div class="form-group">
-                        <label for="feed-type">Feed Type:</label>
-                        <select id="feed-type">
-                            <option value="camera">Local Camera</option>
-                            <option value="url">Stream URL</option>
-                            <option value="rtsp">RTSP Stream</option>
-                        </select>
-                    </div>
-                    <button id="save-feed" class="admin-btn">Save Configuration</button>
-                    <button id="test-feed" class="admin-btn admin-btn-secondary">Test Feed</button>
-                    <button id="close-admin" class="admin-btn admin-btn-tertiary">Close Admin</button>
-                </div>
-                <div id="admin-status" class="admin-status"></div>
-            </div>
-        </div>
-
-        <!-- Admin Toggle (Hidden Button) -->
-        <button id="admin-toggle" class="admin-toggle">👨‍💼</button>
-
         <main class="mirror-workspace">
             <div id="landing-screen" class="landing-overlay">
                 <div class="pill-button" id="start-mirror">

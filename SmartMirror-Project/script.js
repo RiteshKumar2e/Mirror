@@ -5,14 +5,6 @@ const mirrorGlass = document.querySelector('.mirror-glass');
 const mirrorFrame = document.querySelector('.mirror-frame');
 const complimentWidget = document.getElementById('compliment-container');
 const complimentText = document.getElementById('compliment-text');
-const adminPanel = document.getElementById('admin-panel');
-const adminToggle = document.getElementById('admin-toggle');
-const feedUrlInput = document.getElementById('feed-url');
-const feedTypeSelect = document.getElementById('feed-type');
-const saveFeedBtn = document.getElementById('save-feed');
-const testFeedBtn = document.getElementById('test-feed');
-const closeAdminBtn = document.getElementById('close-admin');
-const adminStatus = document.getElementById('admin-status');
 const feedStatus = document.getElementById('feed-status');
 
 let stream = null;
@@ -47,56 +39,21 @@ const compliments = [
 
 // Load admin settings on page load
 function loadAdminSettings() {
-    if (adminFeedUrl && adminFeedType !== 'camera') {
-        feedUrlInput.value = adminFeedUrl;
-        feedTypeSelect.value = adminFeedType;
+    // Load from localStorage (set by admin panel)
+    const savedMirrors = localStorage.getItem('adminMirrors');
+    if (savedMirrors) {
+        try {
+            const mirrors = JSON.parse(savedMirrors);
+            if (mirrors.length > 0) {
+                // Use the first configured mirror
+                const mirror = mirrors[0];
+                adminFeedUrl = mirror.url === 'Local Camera' ? '' : mirror.url;
+                adminFeedType = mirror.type;
+            }
+        } catch (e) {
+            console.error('Error loading admin mirrors:', e);
+        }
     }
-}
-
-// Admin Panel Functions
-function openAdminPanel() {
-    adminPanel.style.display = 'flex';
-    loadAdminSettings();
-}
-
-function closeAdminPanelUI() {
-    adminPanel.style.display = 'none';
-}
-
-function saveFeedConfig() {
-    const url = feedUrlInput.value.trim();
-    const type = feedTypeSelect.value;
-    
-    if (!url && type !== 'camera') {
-        showAdminStatus('Please enter a valid URL', 'error');
-        return;
-    }
-    
-    localStorage.setItem('adminFeedUrl', url);
-    localStorage.setItem('adminFeedType', type);
-    adminFeedUrl = url;
-    adminFeedType = type;
-    showAdminStatus('✓ Configuration saved successfully!', 'success');
-}
-
-function showAdminStatus(message, type = 'info') {
-    adminStatus.textContent = message;
-    adminStatus.className = `admin-status admin-status-${type}`;
-    adminStatus.style.display = 'block';
-    if (type !== 'error') {
-        setTimeout(() => {
-            adminStatus.style.display = 'none';
-        }, 3000);
-    }
-}
-
-function testFeed() {
-    if (!adminFeedUrl && adminFeedType !== 'camera') {
-        showAdminStatus('No feed URL configured', 'error');
-        return;
-    }
-    showAdminStatus('Testing feed...', 'info');
-    // Feed will be tested when mirror is opened
 }
 
 // Camera Logic
@@ -286,12 +243,6 @@ document.getElementById('manual-ring-light').addEventListener('click', () => {
         console.log("Manual Override: Light ON");
     }
 });
-
-// Admin Panel Event Listeners
-adminToggle.addEventListener('click', openAdminPanel);
-closeAdminBtn.addEventListener('click', closeAdminPanelUI);
-saveFeedBtn.addEventListener('click', saveFeedConfig);
-testFeedBtn.addEventListener('click', testFeed);
 
 // Load settings on page load
 loadAdminSettings();
