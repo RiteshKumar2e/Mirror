@@ -473,13 +473,41 @@ function UserPage() {
     photoGallery.push(photo.photoId);
     localStorage.setItem(`gallery-${userId}`, JSON.stringify(photoGallery));
 
-    // Download to user's device
-    const link = document.createElement('a');
-    link.href = photoData;
-    link.download = `mirror-photo-${Date.now()}.jpg`;
-    link.click();
+    // Try to share/save to device - works best on mobile
+    const saveToDevice = async () => {
+      try {
+        // Convert base64 to blob for sharing
+        const response = await fetch(photoData);
+        const blob = await response.blob();
+        const file = new File([blob], `mirror-photo-${Date.now()}.jpg`, { type: 'image/jpeg' });
 
-    alert('✨ Photo saved and downloaded!');
+        // Check if Web Share API is available (mobile)
+        if (navigator.share && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: '📸 Mirror Photo',
+            text: `Photo with ${selectedFilter} filter`
+          });
+          alert('✨ Photo shared successfully!');
+        } else {
+          // Fallback to download (desktop)
+          const link = document.createElement('a');
+          link.href = photoData;
+          link.download = `mirror-photo-${Date.now()}.jpg`;
+          link.click();
+          alert('✨ Photo saved and downloaded!');
+        }
+      } catch (error) {
+        // Fallback if share fails
+        const link = document.createElement('a');
+        link.href = photoData;
+        link.download = `mirror-photo-${Date.now()}.jpg`;
+        link.click();
+        alert('✨ Photo saved and downloaded!');
+      }
+    };
+
+    saveToDevice();
   }, [userId, selectedFilter, location, time, filters]);
 
   const showRandomCompliment = () => {

@@ -335,11 +335,36 @@ function AdminPage() {
               <div className="photo-actions">
                 <button 
                   className="download-btn"
-                  onClick={() => {
-                    const link = document.createElement('a');
-                    link.href = selectedPhoto.imageData;
-                    link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
-                    link.click();
+                  onClick={async () => {
+                    try {
+                      // Convert base64 to blob
+                      const response = await fetch(selectedPhoto.imageData);
+                      const blob = await response.blob();
+                      const file = new File([blob], `mirror-photo-${selectedPhoto.photoId}.jpg`, { type: 'image/jpeg' });
+
+                      // Check if Web Share API is available
+                      if (navigator.share && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                          files: [file],
+                          title: '📸 Mirror Photo',
+                          text: `Photo by ${selectedPhoto.userId}`
+                        });
+                        alert('✅ Photo shared!');
+                      } else {
+                        // Fallback to download
+                        const link = document.createElement('a');
+                        link.href = selectedPhoto.imageData;
+                        link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
+                        link.click();
+                        alert('✅ Photo downloaded!');
+                      }
+                    } catch (error) {
+                      // Fallback to download if share fails
+                      const link = document.createElement('a');
+                      link.href = selectedPhoto.imageData;
+                      link.download = `mirror-photo-${selectedPhoto.photoId}.jpg`;
+                      link.click();
+                    }
                   }}
                 >
                   ⬇️ Download Photo
